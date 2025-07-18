@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Amazon Order Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f7;
+    }
+    body {
+      font-family: 'Inter Tight', Arial, sans-serif;
+      position: relative;
+      min-height: 100vh;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      color: #232f3e;
+    }
+    .container {
+      background: #ffffff;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.05);
+      border-radius: 12px;
+      padding: 32px 40px 28px 40px;
+      margin: 48px auto 32px auto;
+      max-width: 700px;
+    }
+    h2, h3 {
+      color: #232f3e;
+      letter-spacing: 0.5px;
+      font-family: 'Inter Tight', Arial, sans-serif;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 span {
+      color: #ff9900;
+    }
+    h3 {
+      font-size: 20px;
+      margin-top: 32px;
+    }
+    button, input {
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-family: 'Inter Tight', Arial, sans-serif;
+      transition: all 0.2s;
+    }
+    button {
+      background: #8149ec;
+      color: #232f3e;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    button:hover {
+      background: #ff9900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    input {
+      background: #ffffff;
+      color: #232f3e;
+      border: 1px solid #e0e0e0;
+    }
+    input:focus {
+      border: 1px solid #540aea;
+      box-shadow: 0 0 0 2px rgba(255,215,0,0.2);
+    }
+    #iframe-container {
+      margin-top: 24px;
+      height: 600px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(45deg, #232f3e, #ff9900);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 22px;
+    }
+    /* New styles for loading animation and success checkmark */
+    .loading-container, .success-container, .error-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255,255,255,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .loading-container.active, .success-container.active, .error-container.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255,215,0,0.3);
+      border-radius: 50%;
+      border-top-color: #540aea;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      margin-top: 20px;
+      font-weight: 600;
+      color: #232f3e;
+      opacity: 0;
+      animation: fade-in 0.3s ease forwards 0.3s;
+    }
+    @keyframes fade-in {
+      to { opacity: 1; }
+    }
+    .checkmark {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, #5cb85c, #4cae4c);
+      box-shadow: 0 6px 24px rgba(92,184,92,0.4);
+      transform: scale(0);
+      animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      position: relative;
+    }
+    @keyframes pop-in {
+      to { transform: scale(1); }
+    }
+    .checkmark:before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 40px;
+      border-right: 10px solid white;
+      border-top: 0;
+      border-left: 0;
+      border-bottom: 10px solid white;
+      transform-origin: bottom right;
+      transform: rotate(45deg);
+      top: 32px;
+      left: 50px;
+    }
+    .success-text {
+      margin-top: 30px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #232f3e;
+      opacity: 0;
+      animation: fade-in 0.3s ease forwards 0.6s;
+      text-align: center;
+    }
+    .login-success-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #5cb85c;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      font-weight: 600;
+    }
+    .login-success-container.active {
+      opacity: 1;
+      pointer-events: all;
+      animation: slide-down 0.5s ease forwards;
+    }
+    @keyframes slide-down {
+      0% { transform: translateY(-20px) translateX(-50%); }
+      100% { transform: translateY(0) translateX(-50%); }
+    }
+    .error-icon {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      box-shadow: 0 6px 24px rgba(231,76,60,0.4);
+      transform: scale(0);
+      animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      position: relative;
+    }
+    .error-icon:before, .error-icon:after {
+      content: "";
+      position: absolute;
+      width: 60px;
+      height: 10px;
+      background-color: white;
+      border-radius: 5px;
+      top: 55px;
+      left: 30px;
+    }
+    .error-icon:before {
+      transform: rotate(45deg);
+    }
+    .error-icon:after {
+      transform: rotate(-45deg);
+    }
+    .error-text {
+      margin-top: 30px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #232f3e;
+      opacity: 0;
+      animation: fade-in 0.3s ease forwards 0.6s;
+      text-align: center;
+    }
+    .error-message {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #555;
+      opacity: 0;
+      animation: fade-in 0.3s ease forwards 0.8s;
+      max-width: 80%;
+      text-align: center;
+    }
+    .close-button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background: #f5f5f7;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      animation: fade-in 0.3s ease forwards 1s;
+      width: auto;
+    }
+    .close-button:hover {
+      background: #eee;
+      transform: translateY(-2px);
+    }
+    #login-section, #cancel-section {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 24px 20px;
+        margin: 16px;
+        border-radius: 8px;
+      }
+      h2 {
+        font-size: 22px;
+      }
+      h3 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">F</div>
+      <div class="logo-text">Amazon Order Manager</div>
+    </div>
+    
+    <div id="login-section">
+      <h3>Login to Amazon</h3>
+      <button id="loginBtn" onclick="launchLogin()">First time? Login here!</button>
+      <div id="iframe-container" style="display: none;">
+        <iframe id="liveViewFrame" src="about:blank"></iframe>
+      </div>
+    </div>
+    
+    <div id="cancel-section">
+      <h3>Cancel Amazon Order</h3>
+      <input type="text" id="orderId" placeholder="Enter Amazon Order ID" />
+      <button onclick="cancelOrder()">Cancel this Order</button>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-container" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing your request...</div>
+  </div>
+  
+  <!-- Success overlay for ORDER CANCELLATION -->
+  <div class="success-container" id="successOverlay">
+    <div class="checkmark"></div>
+    <div class="success-text">Order Successfully Cancelled!</div>
+  </div>
+  
+  <!-- Login success notification -->
+  <div class="login-success-container" id="loginSuccessNotification">
+    Login successful! You can now cancel orders.
+  </div>
+  
+  <!-- Error overlay -->
+  <div class="error-container" id="errorOverlay">
+    <div class="error-icon"></div>
+    <div class="error-text" id="errorText">Order Not Found</div>
+    <div class="error-message" id="errorMessage">The order ID you entered is invalid or could not be found.</div>
+    <button class="close-button" id="closeError">Close</button>
+  </div>
+  
+  <script>
+    let pollInterval = null;
+    
+    // Check for existing context on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Parse URL parameters for order ID and auto-cancel flag
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderIdParam = urlParams.get('orderId');
+      const autoCancel = urlParams.has('autoCancel');
+      const returnUrl = urlParams.get('returnUrl');
+      
+      // If order ID is provided in URL, populate the input field
+      if (orderIdParam) {
+        const orderIdInput = document.getElementById('orderId');
+        if (orderIdInput) {
+          orderIdInput.value = orderIdParam;
+          
+          // If autoCancel parameter is present, automatically trigger cancellation
+          if (autoCancel && localStorage.getItem('amazonContextId')) {
+            // Small delay to ensure everything is loaded
+            setTimeout(() => {
+              console.log('Auto-cancelling order:', orderIdParam);
+              cancelOrder(returnUrl);
+            }, 500);
+          }
+        }
+      }
+      
+      // Try to get contextId from localStorage
+      const contextId = localStorage.getItem('amazonContextId');
+      
+      if (contextId) {
+        // Show loading indicator while we check context
+        const loadingText = document.createElement('div');
+        loadingText.textContent = 'Checking login status...';
+        loadingText.style.textAlign = 'center';
+        loadingText.style.padding = '10px';
+        loadingText.style.color = '#555';
+        loadingText.id = 'status-checking';
+        document.getElementById('login-section').appendChild(loadingText);
+        
+        try {
+          // Check if this contextId is still valid
+          const res = await fetch('/check-context', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contextId })
+          });
+          
+          const data = await res.json();
+          console.log('Context check result:', data);
+          
+          if (data.exists) {
+            // Hide login section if we have a valid context
+            document.getElementById('login-section').style.display = 'none';
+          } else {
+            // Invalid context, remove from localStorage and show login
+            console.log('Context invalid, showing login button');
+            localStorage.removeItem('amazonContextId');
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('cancel-section').style.display = 'none';
+            // If status check element exists, remove it
+            const statusCheck = document.getElementById('status-checking');
+            if (statusCheck) statusCheck.remove();
+          }
+        } catch (error) {
+          console.error('Error checking context:', error);
+          // On error, better to remove contextId and show login
+          localStorage.removeItem('amazonContextId');
+          document.getElementById('login-section').style.display = 'block';
+          document.getElementById('cancel-section').style.display = 'none';
+          // If status check element exists, remove it
+          const statusCheck = document.getElementById('status-checking');
+          if (statusCheck) statusCheck.remove();
+        }
+      } else {
+        // No contextId in localStorage, show login section
+        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('cancel-section').style.display = 'none';
+      }
+    });
+
+    async function launchLogin() {
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Opening login page...';
+      
+      const res = await fetch('/login');
+      const data = await res.json();
+
+      if (data.success && data.liveViewUrl) {
+        const iframeContainer = document.getElementById('iframe-container');
+        const frame = document.getElementById('liveViewFrame');
+        frame.src = data.liveViewUrl;
+        iframeContainer.style.display = 'block';
+
+        // Start polling after 20 seconds
+        setTimeout(() => {
+          pollInterval = setInterval(async () => {
+            try {
+              const statusRes = await fetch('/login-status');
+              const statusData = await statusRes.json();
+
+              if (statusData.success && statusData.loggedIn) {
+                clearInterval(pollInterval);
+                
+                // Store contextId in localStorage
+                if (statusData.contextId) {
+                  localStorage.setItem('amazonContextId', statusData.contextId);
+                }
+
+                // Hide iframe container
+                iframeContainer.style.display = 'none';
+                
+                // Hide the entire login section
+                document.getElementById('login-section').style.display = 'none';
+                
+                // Show login success notification instead of order success
+                const loginSuccess = document.getElementById('loginSuccessNotification');
+                loginSuccess.classList.add('active');
+                setTimeout(() => {
+                  loginSuccess.classList.remove('active');
+                }, 3000);
+              }
+            } catch (e) {
+              clearInterval(pollInterval);
+              loginBtn.disabled = false;
+              loginBtn.textContent = 'First time? Login here!';
+            }
+          }, 3000);
+        }, 20000);
+      } else {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'First time? Login here!';
+      }
+    }
+
+    async function cancelOrder(returnUrl) {
+      const orderId = document.getElementById('orderId').value;
+      
+      // Validate orderId format
+      if (!orderId || orderId.trim() === '') {
+        document.getElementById('errorMessage').textContent = 'Please enter a valid Amazon Order ID.';
+        document.getElementById('errorOverlay').classList.add('active');
+        return;
+      }
+      
+      // Show the loading animation
+      document.getElementById('loadingOverlay').classList.add('active');
+      
+      const contextId = localStorage.getItem('amazonContextId');
+      try {
+        const res = await fetch('/cancel-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, contextId })
+        });
+        
+        const data = await res.json();
+        console.log('Response data:', data); // For debugging
+        
+        // Hide loading animation
+        document.getElementById('loadingOverlay').classList.remove('active');
+        
+        // Check for explicit success: true - default to false if not present
+        if (data.success === true) {
+          // Only show success if explicitly marked as success: true
+          document.getElementById('successOverlay').classList.add('active');
+          
+          const redirectTimeout = setTimeout(() => {
+            document.getElementById('successOverlay').classList.remove('active');
+            
+            // If returnUrl is provided, redirect back with success status
+            if (returnUrl) {
+              const redirectUrl = new URL(returnUrl);
+              redirectUrl.searchParams.append('status', 'success');
+              redirectUrl.searchParams.append('orderId', orderId);
+              window.location.href = redirectUrl.toString();
+            }
+          }, 3000);
+        } else {
+          // Show appropriate error
+          document.getElementById('errorText').textContent = data.status === 'order_not_found' ? 'Order Not Found' : 'Error';
+          document.getElementById('errorMessage').textContent = data.statusMessage || data.error || 'An error occurred while processing your request.';
+          document.getElementById('errorOverlay').classList.add('active');
+          
+          // Add close handler with redirect if returnUrl is provided
+          if (returnUrl) {
+            const closeErrorBtn = document.getElementById('closeError');
+            closeErrorBtn.addEventListener('click', function() {
+              document.getElementById('errorOverlay').classList.remove('active');
+              
+              // Redirect back with error status
+              const redirectUrl = new URL(returnUrl);
+              redirectUrl.searchParams.append('status', 'error');
+              redirectUrl.searchParams.append('orderId', orderId);
+              redirectUrl.searchParams.append('errorMessage', data.statusMessage || data.error || 'Unknown error');
+              window.location.href = redirectUrl.toString();
+            }, { once: true }); // Use once to avoid multiple listeners if cancelOrder is called multiple times
+          }
+        }
+      } catch (error) {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        document.getElementById('errorText').textContent = 'Connection Error';
+        document.getElementById('errorMessage').textContent = error.message || 'Failed to connect to the server.';
+        document.getElementById('errorOverlay').classList.add('active');
+        
+        // Add close handler with redirect if returnUrl is provided
+        if (returnUrl) {
+          const closeErrorBtn = document.getElementById('closeError');
+          closeErrorBtn.addEventListener('click', function() {
+            document.getElementById('errorOverlay').classList.remove('active');
+            
+            // Redirect back with error status
+            const redirectUrl = new URL(returnUrl);
+            redirectUrl.searchParams.append('status', 'error');
+            redirectUrl.searchParams.append('orderId', orderId);
+            redirectUrl.searchParams.append('errorMessage', 'Connection error');
+            window.location.href = redirectUrl.toString();
+          }, { once: true });
+        }
+      }
+    }
+    
+    // Add event listener for the error close button (default behavior, without redirect)
+    document.getElementById('closeError').addEventListener('click', function() {
+      document.getElementById('errorOverlay').classList.remove('active');
+    });
+  </script>
+</body>
+</html>

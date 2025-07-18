@@ -1,0 +1,27 @@
+{
+  "name": "amazonus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "amazonorder.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@browserbasehq/sdk": "^2.6.0",
+    "@langchain/core": "^0.3.62",
+    "@langchain/langgraph": "^0.3.8",
+    "@langchain/openai": "^0.5.18",
+    "axios": "^1.10.0",
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "langchain": "^0.3.29",
+    "langsmith": "^0.3.45",
+    "playwright": "^1.54.1"
+  }
+}
